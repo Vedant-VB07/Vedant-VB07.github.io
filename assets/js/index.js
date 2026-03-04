@@ -112,6 +112,8 @@
     preloaderStatus.textContent = 'Ready';
     setTimeout(() => {
       preloader.classList.add('hidden');
+      const navWrapper = document.getElementById('nav-wrapper');
+      if (navWrapper) navWrapper.classList.add('visible');
     }, 400);
   }
 
@@ -290,9 +292,9 @@
   const sections = [];
   navLinks.forEach(link => {
     const href = link.getAttribute('href');
-    if (!href || href.startsWith('mailto')) return;
+    if (!href || href === '#' || href.startsWith('mailto')) return;
     const id = href.replace('#', '').trim();
-    const el = id ? document.getElementById(id) : (href === '#' ? document.getElementById('home') : null);
+    const el = document.getElementById(id);
     if (el) sections.push({ link, el });
   });
 
@@ -304,7 +306,7 @@
   const observer = new IntersectionObserver((entries) => {
     // If at the very top, target the Home link
     if (window.scrollY < 100) {
-      const homeLink = document.querySelector('.nav-links a[href="#"]') || document.querySelector('.nav-links a[href="#home"]');
+      const homeLink = document.querySelector('.nav-links a[href="#home"]');
       if (homeLink) {
         navLinks.forEach(l => l.classList.remove('active'));
         homeLink.classList.add('active');
@@ -316,8 +318,7 @@
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         const id = entry.target.id;
-        const activeLink = document.querySelector(`.nav-links a[href="#${id}"]`) ||
-          (id === 'home' ? document.querySelector('.nav-links a[href="#"]') : null);
+        const activeLink = document.querySelector(`.nav-links a[href="#${id}"]`);
 
         if (activeLink && activeLink !== currentActiveLink) {
           navLinks.forEach(l => l.classList.remove('active'));
@@ -330,13 +331,38 @@
 
   sections.forEach(({ el }) => observer.observe(el));
 
+  // ── Click Handle for Immediate Glint Sync ──
+  navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      const href = link.getAttribute('href');
+      // Only smooth scroll if it's an anchor on the same page
+      if (href && href.startsWith('#')) {
+        const targetId = href.replace('#', '');
+        const targetEl = document.getElementById(targetId);
+
+        if (targetEl) {
+          e.preventDefault();
+
+          // Immediate Visual Feedback
+          navLinks.forEach(l => l.classList.remove('active'));
+          link.classList.add('active');
+          currentActiveLink = link;
+
+          // Smooth Scroll
+          targetEl.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+      // Non-anchor links (like about.html) will behave normally.
+    });
+  });
+
   window.addEventListener('scroll', () => {
     const scrolled = window.scrollY > 60;
     navWrapper.classList.toggle('scrolled', scrolled);
 
     // Force Home state if at top
     if (window.scrollY < 100) {
-      const homeLink = document.querySelector('.nav-links a[href="#"]') || document.querySelector('.nav-links a[href="#home"]');
+      const homeLink = document.querySelector('.nav-links a[href="#home"]');
       if (homeLink) {
         navLinks.forEach(l => l.classList.remove('active'));
         homeLink.classList.add('active');
@@ -360,7 +386,7 @@
   attachAccordionListeners();
 
   // ── 6. Contact Modal Logic ──────────────────────────────
-  const modal = document.getElementById('contact-modal');
+  const modal = document.getElementById('contact');
   const modalClose = document.getElementById('modal-close');
   const modalOverlay = document.getElementById('modal-overlay');
   const contactTriggers = [
@@ -370,7 +396,10 @@
   const contactForm = document.getElementById('contact-form');
 
   function openModal(e) {
-    if (e) e.preventDefault();
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
   }
@@ -524,26 +553,40 @@
       requestAnimationFrame(animate);
     }
 
-    canvas.addEventListener('mousemove', (e) => {
-      const rect = canvas.getBoundingClientRect();
-      mouse.x = e.clientX - rect.left;
-      mouse.y = e.clientY - rect.top;
+    window.addEventListener('mousemove', (e) => {
+      if (!canvas) return;
 
-      // Update CSS variables for grid glow
-      const hero = document.getElementById('home');
-      if (hero) {
-        const heroRect = hero.getBoundingClientRect();
-        hero.style.setProperty('--mouse-x', `${e.clientX - heroRect.left}px`);
-        hero.style.setProperty('--mouse-y', `${e.clientY - heroRect.top}px`);
-        hero.style.setProperty('--glow-opacity', '1');
+      // ── Particle Boundary Fix ──
+      // Particles ONLY react if mouse is on the RIGHT HALF of the viewport
+      if (e.clientX > window.innerWidth / 2) {
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = e.clientX - rect.left;
+        mouse.y = e.clientY - rect.top;
+
+        // Update CSS variables for grid glow on the hero section
+        const hero = document.getElementById('home');
+        if (hero) {
+          const heroRect = hero.getBoundingClientRect();
+          hero.style.setProperty('--mouse-x', `${e.clientX - heroRect.left}px`);
+          hero.style.setProperty('--mouse-y', `${e.clientY - heroRect.top}px`);
+          hero.style.setProperty('--glow-opacity', '1');
+        }
+      } else {
+        // Return to idle state if mouse is on the left half
+        mouse.x = -1000;
+        mouse.y = -1000;
+        const hero = document.getElementById('home');
+        if (hero) hero.style.setProperty('--glow-opacity', '0');
       }
     });
 
-    canvas.addEventListener('mouseleave', () => {
-      mouse.x = -1000;
-      mouse.y = -1000;
-      const hero = document.getElementById('home');
-      if (hero) hero.style.setProperty('--glow-opacity', '0');
+    window.addEventListener('mouseout', (e) => {
+      if (!e.relatedTarget) {
+        mouse.x = -1000;
+        mouse.y = -1000;
+        const hero = document.getElementById('home');
+        if (hero) hero.style.setProperty('--glow-opacity', '0');
+      }
     });
 
     canvas.addEventListener('mousedown', (e) => {

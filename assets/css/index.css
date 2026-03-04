@@ -147,8 +147,17 @@ button {
     top: 20px;
     width: min(720px, calc(100vw - 40px));
     left: 50%;
-    transform: translateX(-50%);
-    transition: all var(--dur) var(--ease-out);
+    transform: translateX(-50%) translateY(-30px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.8s ease, transform 0.8s var(--ease-out), visibility 0.8s;
+    z-index: 9999;
+}
+
+.nav-wrapper.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
 }
 
 nav.site-nav {
@@ -266,6 +275,9 @@ nav.site-nav {
     flex: 1;
     overflow: hidden;
     background: transparent;
+    z-index: 1;
+    pointer-events: none;
+    /* Logic: Don't steal clicks from background items */
 }
 
 .hero-grid-overlay {
@@ -297,6 +309,13 @@ nav.site-nav {
     height: 100%;
     object-fit: cover;
     z-index: 0;
+    pointer-events: auto;
+    /* Logic: Particles react to mouse */
+}
+
+/* Ensure CTA buttons are clickable despite being in hero layers */
+.hero-cta-row a,
+.hero-scroll-hint {
     pointer-events: auto;
 }
 
@@ -936,18 +955,21 @@ footer.site-footer {
 .modal-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
 .modal-container {
     position: relative;
     width: min(500px, 90vw);
-    background: var(--bg-raised);
-    border: 1px solid var(--border-hi);
+    background: rgba(20, 20, 20, 0.72);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(192, 192, 192, 0.3);
     border-radius: var(--radius-lg);
     padding: 40px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05);
     transform: translateY(20px);
     transition: transform 0.4s var(--ease-out);
 }
