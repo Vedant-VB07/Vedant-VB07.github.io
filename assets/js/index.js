@@ -391,9 +391,221 @@
   }, 100);
 
 
-  // ── 5. Init ──────────────────────────────────────────────
-  renderProjects();
-  attachAccordionListeners();
+  // ── 8. Final Spring-Physics Skills Web ──────────────
+  function initSkillsGraph() {
+    const rootContainer = document.getElementById('skills-graph-root');
+    const svgLayer = document.getElementById('skills-graph-lines');
+    const columnRight = document.querySelector('.work-right');
+    if (!rootContainer || !svgLayer) return;
+
+    let expandedGroups = new Set();
+    let isRootExpanded = false;
+    const CENTER_NODE_ID = 'root';
+
+    // Map of currently rendered node elements for coordinate tracking
+    const nodeElements = new Map();
+    const lineElements = [];
+
+    // Refined Text Containment Logic
+    function autoScaleText(el, radius, text) {
+      const label = el.querySelector('.node-label');
+      if (!label) return;
+
+      const maxSize = el.classList.contains('lv-1') ? 12 : 10;
+      // Formula: fontSize = Math.min(maxSize, (circleRadius * 2.2) / text.length)
+      let fontSize = Math.min(maxSize, (radius * 2.2) / text.length);
+
+      // Safety floor for readability
+      if (fontSize < 6) fontSize = 6;
+
+      label.style.fontSize = fontSize + 'px';
+
+      // Final boundary check
+      const maxWidth = radius * 1.8;
+      while (label.offsetWidth > maxWidth && fontSize > 5) {
+        fontSize -= 0.5;
+        label.style.fontSize = fontSize + 'px';
+      }
+    }
+
+    // Animation loop for live-stretching "Tether" lines
+    function updateLines() {
+      lineElements.forEach(lineObj => {
+        const { line, parentId, childId } = lineObj;
+        const parentEl = nodeElements.get(parentId);
+        const childEl = nodeElements.get(childId);
+
+        if (parentEl && childEl) {
+          // Get live positions relative to rootContainer
+          const pRect = parentEl.getBoundingClientRect();
+          const rRect = rootContainer.getBoundingClientRect();
+          const cRect = childEl.getBoundingClientRect();
+
+          const x1 = pRect.left + pRect.width / 2 - rRect.left;
+          const y1 = pRect.top + pRect.height / 2 - rRect.top;
+          const x2 = cRect.left + cRect.width / 2 - rRect.left;
+          const y2 = cRect.top + cRect.height / 2 - rRect.top;
+
+          line.setAttribute("x1", x1);
+          line.setAttribute("y1", y1);
+          line.setAttribute("x2", x2);
+          line.setAttribute("y2", y2);
+
+          // Sync line visibility with child transition
+          if (childEl.classList.contains('visible')) {
+            line.classList.add('visible');
+          } else {
+            line.classList.remove('visible');
+          }
+        }
+      });
+      requestAnimationFrame(updateLines);
+    }
+
+    // Initialize all nodes once for smooth transitions
+    function setupNodes() {
+      rootContainer.innerHTML = '';
+      svgLayer.innerHTML = '';
+      nodeElements.clear();
+      lineElements.length = 0;
+
+      SKILLS.forEach(skill => {
+        const el = document.createElement('div');
+        el.className = `skill-node lv-${skill.level}`;
+
+        // Apply group color to node circles
+        const groupInfo = skill.level === 0 ? null : (skill.level === 1 ? skill : SKILLS.find(s => s.id === skill.parent));
+        if (groupInfo && groupInfo.color) {
+          el.style.backgroundColor = groupInfo.color;
+          el.style.borderColor = `rgba(255, 255, 255, 0.1)`;
+          el.setAttribute('data-group-color', groupInfo.color);
+        }
+
+        if (skill.level > 0) el.setAttribute('data-group', skill.level === 1 ? skill.id : skill.parent);
+        el.innerHTML = `<span class="node-label">${skill.name}</span>`;
+
+        // Initial state at center
+        el.style.transform = `translate(-50%, -50%) scale(0)`;
+
+        el.onclick = (e) => {
+          e.stopPropagation();
+          if (skill.id === CENTER_NODE_ID) {
+            isRootExpanded = !isRootExpanded;
+            if (!isRootExpanded) expandedGroups.clear();
+          } else if (skill.level === 1) {
+            if (expandedGroups.has(skill.id)) {
+              expandedGroups.delete(skill.id);
+            } else {
+              expandedGroups.clear();
+              expandedGroups.add(skill.id);
+            }
+          }
+          refreshGraph();
+        };
+
+        rootContainer.appendChild(el);
+        nodeElements.set(skill.id, el);
+
+        if (skill.parent) {
+          const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          line.setAttribute("class", "skill-line-svg");
+
+          // Inherit Group's specific color for the tether
+          if (groupInfo && groupInfo.color) {
+            line.style.stroke = groupInfo.color;
+          } else {
+            line.style.stroke = '#C0C0C0'; // Fallback to silver for root
+          }
+
+          svgLayer.appendChild(line);
+          lineElements.push({ line, parentId: skill.parent, childId: skill.id });
+        }
+      });
+    }
+
+    function refreshGraph() {
+      SKILLS.forEach(skill => {
+        const el = nodeElements.get(skill.id);
+        if (!el) return;
+
+        let visible = false;
+        let x = 0, y = 0;
+
+        if (skill.id === CENTER_NODE_ID) {
+          visible = true;
+          x = 0; y = 0;
+        } else if (skill.parent === CENTER_NODE_ID) {
+          visible = isRootExpanded;
+          const groups = SKILLS.filter(s => s.parent === CENTER_NODE_ID);
+          const idx = groups.findIndex(s => s.id === skill.id);
+          const angle = (idx / groups.length) * Math.PI * 2;
+          x = Math.cos(angle) * 140;
+          y = Math.sin(angle) * 140;
+        } else {
+          visible = expandedGroups.has(skill.parent);
+          const siblings = SKILLS.filter(s => s.parent === skill.parent);
+          const idx = siblings.findIndex(s => s.id === skill.id);
+          const groups = SKILLS.filter(s => s.parent === CENTER_NODE_ID);
+          const pIdx = groups.findIndex(s => s.id === skill.parent);
+          const pAngle = (pIdx / groups.length) * Math.PI * 2;
+          const spread = Math.PI * 0.5;
+          const angle = pAngle - (spread / 2) + (idx / (siblings.length - 1 || 1)) * spread;
+          x = Math.cos(angle) * 260;
+          y = Math.sin(angle) * 260;
+        }
+
+        if (visible) {
+          el.classList.add('visible');
+          el.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(1)`;
+        } else {
+          el.classList.remove('visible');
+          // Retract to parent or center
+          let rx = 0, ry = 0;
+          if (skill.parent && skill.parent !== CENTER_NODE_ID) {
+            const groups = SKILLS.filter(s => s.parent === CENTER_NODE_ID);
+            const pIdx = groups.findIndex(s => s.id === skill.parent);
+            const pAngle = (pIdx / groups.length) * Math.PI * 2;
+            rx = Math.cos(pAngle) * 140;
+            ry = Math.sin(pAngle) * 140;
+          }
+          el.style.transform = `translate(calc(-50% + ${rx}px), calc(-50% + ${ry}px)) scale(0)`;
+        }
+
+        setTimeout(() => autoScaleText(el, el.offsetWidth / 2, skill.name), 0);
+      });
+    }
+
+    if (columnRight) {
+      columnRight.onclick = () => {
+        isRootExpanded = false;
+        expandedGroups.clear();
+        refreshGraph();
+      };
+    }
+
+    setupNodes();
+    refreshGraph();
+    requestAnimationFrame(updateLines);
+    window.addEventListener('resize', refreshGraph);
+  }
+
+  // ── 9. Init All ──────────────────────────────────────────
+  function init() {
+    renderProjects();
+    attachAccordionListeners();
+    initSkillsGraph();
+
+    setTimeout(() => {
+      const list = document.getElementById('projects-list');
+      if (list && list.children.length === 0) renderProjects();
+    }, 500);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 
   // ── 6. Contact Action Hub Logic ────────────────────────
   const modal = document.getElementById('contact');
@@ -609,9 +821,11 @@
     window.addEventListener('mousemove', (e) => {
       if (!canvas) return;
 
+      const isHeroVisible = window.scrollY < (window.innerHeight * 0.8);
+
       // ── Particle Boundary Fix ──
-      // Particles ONLY react if mouse is on the RIGHT HALF of the viewport
-      if (e.clientX > window.innerWidth / 2) {
+      // Particles ONLY react if mouse is on the RIGHT HALF of the viewport AND Hero is visible
+      if (isHeroVisible && e.clientX > window.innerWidth / 2) {
         const rect = canvas.getBoundingClientRect();
         mouse.x = e.clientX - rect.left;
         mouse.y = e.clientY - rect.top;
@@ -625,7 +839,7 @@
           hero.style.setProperty('--glow-opacity', '1');
         }
       } else {
-        // Return to idle state if mouse is on the left half
+        // Return to idle state (Constellation Mode) if hero is hidden or mouse on left
         mouse.x = -1000;
         mouse.y = -1000;
         const hero = document.getElementById('home');

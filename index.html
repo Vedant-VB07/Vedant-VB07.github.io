@@ -79,15 +79,29 @@
 
     <!-- ── Projects ── -->
     <section class="projects-section" id="work" aria-label="Selected work">
-        <div class="projects-header" aria-hidden="true">
-            <span>#</span>
-            <span>Project</span>
-            <span>Category</span>
-            <span>Year</span>
-            <span></span>
+        <div class="work-container">
+            <!-- Left Column: Projects List -->
+            <div class="work-left">
+                <div class="projects-header" aria-hidden="true">
+                    <span>#</span>
+                    <span>Project</span>
+                    <span>Category</span>
+                    <span>Year</span>
+                    <span></span>
+                </div>
+                <!-- Rows are injected by index.js -->
+                <div id="projects-list"></div>
+            </div>
+
+            <div class="work-right">
+                <div id="skills-graph-container" class="sticky-container">
+                    <!-- SVG for connection lines -->
+                    <svg id="skills-graph-lines" width="100%" height="100%"></svg>
+                    <!-- Nodes will be injected here -->
+                    <div id="skills-graph-root"></div>
+                </div>
+            </div>
         </div>
-        <!-- Rows are injected by index.js -->
-        <div id="projects-list"></div>
     </section>
 
     <!-- ── About ── -->
@@ -165,9 +179,23 @@
         </div>
     </div>
 
-    <!-- Scripts (projects.js MUST load before index.js) -->
-    <script src="./assets/js/projects.js"></script>
-    <script src="./assets/js/index.js"></script>
+    <!-- Scripts with Cache Busting -->
+    <script>
+        (function () {
+            const v = Date.now();
+            const scripts = [
+                './assets/js/skills.js',
+                './assets/js/projects.js',
+                './assets/js/index.js'
+            ];
+            scripts.forEach(src => {
+                const s = document.createElement('script');
+                s.src = `${src}?v=${v}`;
+                s.async = false; // Maintain order
+                document.body.appendChild(s);
+            });
+        })();
+    </script>
 </body>
 
 </html>

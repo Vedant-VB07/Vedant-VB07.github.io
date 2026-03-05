@@ -505,9 +505,208 @@ nav.site-nav {
     background: var(--text-muted);
 }
 
-/* ── 5. Projects Section ──────────────────────────────────── */
+/* ── 5. Projects Section (Hierarchical Split-Screen) ───────── */
 .projects-section {
     padding: 0 7vw;
+}
+
+.work-container {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 60px;
+    align-items: flex-start;
+}
+
+.work-left {
+    min-width: 0;
+}
+
+.work-right {
+    position: sticky;
+    top: 15vh;
+    padding-bottom: 5vh;
+}
+
+#skills-graph-container {
+    width: 100%;
+    height: 600px;
+    background: transparent;
+    position: relative;
+    overflow: visible;
+    pointer-events: none;
+}
+
+#skills-graph-lines {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+}
+
+#skills-graph-root {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 2px;
+    height: 2px;
+    pointer-events: auto;
+}
+
+/* 3-Tier Node Styles with Overshoot Physics */
+.skill-node {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1),
+        opacity 0.4s ease,
+        box-shadow 0.4s ease;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 10;
+    text-align: center;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.skill-node.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Tier 1: Core (SKILLS) */
+.skill-node.lv-0 {
+    width: 100px;
+    height: 100px;
+    border: 3px solid #C0C0C0;
+    background: rgba(40, 40, 40, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: 30;
+    box-shadow: 0 0 15px rgba(192, 192, 192, 0.2);
+}
+
+.skill-node.lv-0 .node-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #C0C0C0;
+    letter-spacing: 0.1em;
+}
+
+/* Tier 2: Groups (Muted Backgrounds + Glow) */
+.skill-node.lv-1 {
+    width: 85px;
+    height: 85px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: currentColor;
+    z-index: 20;
+}
+
+.skill-node.lv-1[data-group="programming"] {
+    box-shadow: 0 0 15px rgba(26, 58, 74, 0.8);
+}
+
+.skill-node.lv-1[data-group="webdev"] {
+    box-shadow: 0 0 15px rgba(26, 74, 58, 0.8);
+}
+
+.skill-node.lv-1[data-group="security"] {
+    box-shadow: 0 0 15px rgba(74, 26, 26, 0.8);
+}
+
+.skill-node.lv-1 .node-label {
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #fff;
+    padding: 10px;
+    line-height: 1.1;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+/* Tier 3: Nodes */
+.skill-node.lv-2 {
+    width: 70px;
+    height: 70px;
+    background: rgba(30, 30, 30, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    z-index: 15;
+}
+
+.skill-node.lv-2 .node-label {
+    font-size: 0.7rem;
+    color: #eee;
+    padding: 8px;
+    font-weight: 500;
+}
+
+.skill-node.lv-2[data-group="programming"] {
+    box-shadow: 0 0 10px rgba(26, 58, 74, 0.4);
+}
+
+.skill-node.lv-2[data-group="webdev"] {
+    box-shadow: 0 0 10px rgba(26, 74, 58, 0.4);
+}
+
+.skill-node.lv-2[data-group="security"] {
+    box-shadow: 0 0 10px rgba(74, 26, 26, 0.4);
+}
+
+.skill-node:hover {
+    box-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
+}
+
+.skill-node.lv-1:hover {
+    transform: translate(-50%, -50%) scale(1.05);
+}
+
+/* Cord-like Connection Lines (Tethers) */
+.skill-line-svg {
+    stroke-width: 1px;
+    /* Robust thin tether */
+    stroke-linecap: round;
+    transition: opacity 0.5s ease;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+    /* Behind Nodes */
+}
+
+.skill-line-svg.visible {
+    opacity: 0.5;
+}
+
+/* Mobile Fallback: Bento Grid */
+.bento-grid {
+    display: none;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 16px;
+    padding: 40px 0;
+}
+
+.bento-item {
+    padding: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    text-align: left;
+}
+
+.bento-item .bento-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+}
+
+.bento-item .bento-list {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.5;
 }
 
 .projects-header {
@@ -779,6 +978,28 @@ nav.site-nav {
 
 .btn-live-at:hover svg {
     transform: translate(2px, -2px);
+}
+
+/* Responsive Work Section */
+@media (max-width: 1024px) {
+    .work-container {
+        grid-template-columns: 1fr;
+        gap: 60px;
+    }
+
+    .work-right {
+        position: static;
+        width: 100%;
+        padding-bottom: 0;
+    }
+
+    #skills-graph-container {
+        display: none;
+    }
+
+    .bento-grid {
+        display: grid;
+    }
 }
 
 /* ── 8. About Section ─────────────────────────────────────── */
