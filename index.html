@@ -23,7 +23,7 @@
     <!-- ── Preloader ── -->
     <div id="preloader" aria-hidden="true">
         <div class="preloader-inner">
-            <div class="preloader-logo">VB —</div>
+            <div class="preloader-logo">VB</div>
             <div class="preloader-bar-wrap">
                 <div class="preloader-bar" id="preloader-bar"></div>
             </div>
@@ -36,7 +36,7 @@
     <!-- ── Floating Island Nav ── -->
     <div class="nav-wrapper" id="nav-wrapper">
         <nav class="site-nav" aria-label="Main navigation">
-            <span class="nav-logo" id="nav-logo-trigger">VB —</span>
+            <span class="nav-logo" id="nav-logo-trigger">VB</span>
             <ul class="nav-links">
                 <li><a href="#home" class="active">Home</a></li>
                 <li><a href="#work">Work</a></li>
@@ -52,11 +52,11 @@
         <div class="hero-gradient" aria-hidden="true"></div>
 
         <div class="hero-content">
-            <p class="hero-eyebrow">Portfolio 2024</p>
-            <h1 class="hero-heading">Build<br /><em>Break</em><br />Secure.</h1>
+            <p class="hero-eyebrow">Portfolio</p>
+            <h1 class="hero-heading">Build<br /><em>Break</em><br />Secure</h1>
+            <p class="hero-name">Vedant Bondekar</p>
             <p class="hero-sub">
-                Senior Creative Developer crafting high-performance digital
-                products — from design systems to 3D installations.
+               CSE Sophomore @ IIT Gandhinagar | Developer | Cybersecurity Enthusiast<br />
             </p>
             <div class="hero-cta-row">
                 <a href="#work" class="btn-primary">
@@ -110,11 +110,10 @@
             <p class="about-label">About</p>
             <h2 class="about-heading">Craft at<br />the intersection<br />of code & design.</h2>
             <p class="about-text">
-                I'm Vedant — a creative developer who sits at the seam between
-                engineering and art direction. With over 5 years of professional
-                experience delivering across web, mobile, and physical installations,
-                I bring an obsessive attention to detail and a systems-first mindset
-                to every engagement.
+                I'm Vedant - a curious tech enthusiast who sits at the seam between
+                engineering and creativity. With a background in CSE and passion for technology, I thrive to learn and stay updated with the latest trends and technologies.  <br/>
+                Each and every new thing I learn adds even more of interest and excitement to my journey. I have a a strong interest in programming, cybersecurity. I have also explored web development. <br />
+                Apart from this I have also been involved in other social, cultural and technical activities in my college.  <br />
             </p>
         </div>
         <!-- Photo + Quote -->
@@ -124,24 +123,33 @@
                 <img src="./assets/img/photo.jpg" alt="Vedant" class="about-photo"
                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
                 <!-- Shown if photo is missing -->
-                <div class="about-photo-fallback">
+                <!-- <div class="about-photo-fallback">
                     <span>VB</span>
-                </div>
+                </div> -->
                 <div class="photo-rim" aria-hidden="true"></div>
             </div>
             <blockquote class="about-quote">
                 <p class="quote-text">"Any sufficiently crafted interface<br />is indistinguishable from art."</p>
-                <cite class="quote-cite">— Vedant</cite>
+                <cite class="quote-cite">- Vedant</cite>
             </blockquote>
+        </div>
+        <!-- Timeline Section -->
+        <div class="about-timeline-wrap">
+            <h3 class="timeline-heading">Journey & Activities</h3>
+            <div class="timeline-container">
+                <div id="about-timeline" class="timeline-track">
+                    <!-- Activities will be injected by index.js -->
+                </div>
+            </div>
         </div>
     </section>
 
     <!-- ── Footer ── -->
     <footer class="site-footer">
-        <p class="footer-copy">© 2025 Vedant. All rights reserved.</p>
+        <p class="footer-copy">© 2026 Vedant. All rights reserved.</p>
         <nav class="footer-links" aria-label="Social links">
-            <a href="https://github.com/Vedant-VB07" target="_blank" rel="noopener">GitHub</a>
-            <a href="https://linkedin.com/" target="_blank" rel="noopener">LinkedIn</a>
+            <a href="https://github.com/vedantb7" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://www.linkedin.com/in/vedant-bondekar-937808322/" target="_blank" rel="noopener">LinkedIn</a>
             <div class="footer-email-wrap">
                 <span class="copy-tooltip" id="copy-tooltip">Copied!</span>
                 <a href="#" class="footer-email-link" id="footer-email-link">Email</a>
@@ -186,6 +194,7 @@
             const scripts = [
                 './assets/js/skills.js',
                 './assets/js/projects.js',
+                './assets/js/timeline.js',
                 './assets/js/index.js'
             ];
             scripts.forEach(src => {

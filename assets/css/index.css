@@ -368,15 +368,27 @@ nav.site-nav {
 
 .hero-heading {
     font-family: 'Inter Tight', sans-serif;
-    font-size: clamp(3.5rem, 9vw, 8rem);
+    font-size: clamp(2.5rem, 6vw, 5.5rem);
     font-weight: 700;
-    line-height: 0.92;
+    line-height: 1;
     letter-spacing: -0.04em;
     color: var(--accent-hi);
-    margin-bottom: 32px;
+    margin-bottom: 48px;
+    /* Increased away from the name */
     max-width: 900px;
     position: relative;
     z-index: 1;
+}
+
+.hero-name {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    font-weight: 500;
+    color: var(--accent);
+    margin-bottom: 12px;
+    /* Reduced spacing to the bio below */
+    letter-spacing: -0.02em;
+    opacity: 0.8;
 }
 
 /* Techy Hero Animations */
@@ -587,6 +599,30 @@ nav.site-nav {
     backdrop-filter: blur(10px);
     z-index: 30;
     box-shadow: 0 0 15px rgba(192, 192, 192, 0.2);
+    animation: pulse-glow 3s ease-in-out infinite;
+    transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+}
+
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 15px rgba(192, 192, 192, 0.2), inset 0 0 0px rgba(255, 255, 255, 0);
+        border-color: rgba(192, 192, 192, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 35px rgba(255, 255, 255, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.9);
+        transform: translate(-50%, -50%) scale(1.05);
+    }
+}
+
+.skill-node.lv-0:hover {
+    animation: none;
+    /* Stop pulsing on hover for manual control */
+    box-shadow: 0 0 45px rgba(255, 255, 255, 0.6);
+    transform: translate(-50%, -50%) scale(1.1);
 }
 
 .skill-node.lv-0 .node-label {
@@ -1007,9 +1043,20 @@ nav.site-nav {
     padding: 120px 7vw;
     border-top: 1px solid var(--border);
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 80px;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 60px;
     align-items: center;
+    overflow: hidden;
+}
+
+@media (max-width: 900px) {
+    .about-section {
+        grid-template-columns: 1fr;
+    }
+}
+
+.about-copy {
+    min-width: 0;
 }
 
 .about-label {
@@ -1023,18 +1070,21 @@ nav.site-nav {
 
 .about-heading {
     font-family: 'Inter Tight', sans-serif;
-    font-size: clamp(1.8rem, 3vw, 2.8rem);
+    font-size: clamp(2rem, 3.5vw, 2.8rem);
     font-weight: 700;
     letter-spacing: -0.03em;
     color: var(--accent-hi);
     line-height: 1.1;
     margin-bottom: 24px;
+    max-width: 600px;
 }
 
 .about-text {
     color: var(--text-muted);
     line-height: 1.8;
     font-size: 0.9375rem;
+    max-width: 640px;
+    margin-bottom: 40px;
 }
 
 /* ── 8b. About — Photo + Quote ───────────────────────────── */
@@ -1043,6 +1093,7 @@ nav.site-nav {
     flex-direction: column;
     align-items: center;
     gap: 32px;
+    min-width: 0;
 }
 
 .about-photo-frame {
@@ -1081,59 +1132,293 @@ nav.site-nav {
 }
 
 /* Subtle animated silver rim */
-.photo-rim {
-    position: absolute;
-    inset: -1px;
-    border-radius: calc(var(--radius-lg) + 1px);
-    background: conic-gradient(from 0deg,
-            transparent 0%,
-            rgba(192, 192, 192, 0.6) 30%,
-            transparent 60%,
-            rgba(192, 192, 192, 0.2) 80%,
-            transparent 100%);
-    mask: linear-gradient(#fff 0 0) content-box,
-        linear-gradient(#fff 0 0);
-    mask-composite: exclude;
-    -webkit-mask-composite: destination-out;
-    padding: 1px;
-    animation: rim-spin 6s linear infinite;
-    pointer-events: none;
-    opacity: 0.7;
+/* .photo-rim { */
+/* position: absolute; */
+/* inset: -1px; */
+/* border-radius: calc(var(--radius-lg) + 1px); */
+/* background: conic-gradient(from 0deg, */
+/* transparent 0%, */
+/* rgba(192, 192, 192, 0.6) 30%, */
+/* transparent 60%, */
+/* rgba(192, 192, 192, 0.2) 80%, */
+/* transparent 100%); */
+/* mask: linear-gradient(#fff 0 0) content-box, */
+/* linear-gradient(#fff 0 0); */
+/* mask-composite: exclude; */
+/* -webkit-mask-composite: destination-out; */
+/* padding: 1px; */
+/* animation: rim-spin 6s linear infinite; */
+/* pointer-events: none; */
+/* ── About Timeline (90-Degree Step Snake) ──────────────── */
+.about-timeline-wrap {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin-top: 80px;
+    padding-top: 40px;
+    border-top: 1px solid var(--border);
+    position: relative;
+    overflow: visible;
 }
 
-@keyframes rim-spin {
-    from {
-        transform: rotate(0deg);
-    }
-
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-.about-quote {
-    text-align: center;
-    padding: 0 8px;
-    border: none;
-}
-
-.quote-text {
+.timeline-heading {
     font-family: 'Inter Tight', sans-serif;
-    font-size: clamp(0.9rem, 1.5vw, 1.05rem);
-    font-style: italic;
-    color: var(--accent);
-    line-height: 1.6;
-    letter-spacing: 0.01em;
-    margin-bottom: 12px;
+    font-size: 1rem;
+    font-weight: 900;
+    /* Bolder as requested */
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent-hi);
+    /* Highlight with silver-white */
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
+    /* Highlight effect */
+    margin-bottom: 60px;
+    text-align: center;
 }
 
-.quote-cite {
+.timeline-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.timeline-row {
+    display: flex;
+    justify-content: flex-start;
+    /* Corrected from space-around to keep dots on grid */
+    position: relative;
+    margin-bottom: 95px;
+    /* Reduced spacing */
+}
+
+/* Straight horizontal line for each row */
+/* Straight horizontal line for each row */
+.timeline-row::before {
+    content: '';
+    position: absolute;
+    top: 60px;
+    /* Center leveled spine */
+    left: 0;
+    right: 0;
+    height: 1.5px;
+    background: var(--border);
+    opacity: 1;
+    z-index: 0;
+    transition: all 0.3s ease;
+}
+
+/* Entry/Exit Logic for a clean journey */
+
+/* First row: line starts at the first dot (10% center) */
+.timeline-row:first-child::before {
+    left: 10% !important;
+}
+
+/* Last row trimming: Path ends exactly at the dot's center + 40px buffer */
+.timeline-row.last-row.row-ltr::before {
+    left: 0;
+    right: auto;
+    width: calc((var(--last-item-idx) * 20% + 10%) + 40px) !important;
+}
+
+.timeline-row.last-row.row-rtl::before {
+    right: 0;
+    left: auto;
+    width: calc((var(--last-item-idx) * 20% + 10%) + 40px) !important;
+}
+
+.row-ltr {
+    flex-direction: row;
+}
+
+.row-rtl {
+    flex-direction: row-reverse;
+}
+
+.timeline-item {
+    position: relative;
+    width: 20%;
+    /* 5 items per row */
+    min-height: 120px;
+    z-index: 5;
+    text-align: center;
+}
+
+/* Alternate Dots Alignment */
+.timeline-item:nth-child(odd) .timeline-dot {
+    top: 45px;
+    /* UP */
+}
+
+.timeline-item:nth-child(even) .timeline-dot {
+    top: 75px;
+    /* DOWN */
+}
+
+/* Vertical Tethers connecting staggered dots to the spine */
+.timeline-dot::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    width: 1.5px;
+    /* Match bold spine */
+    background: var(--border);
+    opacity: 1;
+    z-index: -1;
+}
+
+.timeline-item:nth-child(odd) .timeline-dot::before {
+    top: 50%;
+    height: 15px;
+    /* From 45px to 60px line */
+}
+
+.timeline-item:nth-child(even) .timeline-dot::before {
+    bottom: 50%;
+    height: 15px;
+    /* From 75px to 60px line */
+}
+
+/* Alternating Content (Text) Position */
+.timeline-content {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 140px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    pointer-events: none;
+}
+
+/* UP Items: Content ABOVE line. ORDER: Details (Title) then Timeline (Date) */
+.timeline-item:nth-child(odd) .timeline-content {
+    bottom: calc(100% - 40px);
+    flex-direction: column;
+}
+
+/* DOWN Items: Content BELOW line. ORDER: Timeline (Date) then Details (Title) */
+.timeline-item:nth-child(even) .timeline-content {
+    top: 85px;
+    flex-direction: column-reverse;
+}
+
+.timeline-dot {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 7px;
+    height: 7px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(192, 192, 192, 0.4);
+    z-index: 10;
+    transition: all 0.3s var(--ease-out);
+}
+
+.timeline-item:hover .timeline-dot {
+    background: #fff;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+    transform: translateX(-50%) scale(1.4);
+}
+
+.timeline-content {
+    padding: 0;
+}
+
+.timeline-date {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--accent-hi);
+}
+
+.timeline-text {
     font-size: 0.75rem;
-    font-style: normal;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    line-height: 1.4;
     color: var(--text-muted);
+}
+
+/* ─────────────────────────────────────────────────────────── */
+/* ── 90-DEGREE CONNECTORS (Clearance Logic) ────────────────── */
+/* ─────────────────────────────────────────────────────────── */
+
+/* Drop from far right */
+.row-ltr .timeline-item.row-end::after {
+    content: '';
+    position: absolute;
+    top: 0px;
+    right: -1.25px;
+    /* Centered overlap */
+    width: 1.5px;
+    /* Bolder drop */
+    height: calc(100% + 95px);
+    /* Bridge next row's line (matching current margin) */
+    background: var(--border);
+    opacity: 1;
+    z-index: 0;
+    transform: translateY(60px);
+    /* Start from the spine level */
+}
+
+/* Drop from far left */
+.row-rtl .timeline-item.row-end::after {
+    content: '';
+    position: absolute;
+    top: 0px;
+    left: -1.25px;
+    /* Centered overlap */
+    width: 1.5px;
+    height: calc(100% + 95px);
+    background: var(--border);
+    opacity: 1;
+    z-index: 0;
+    transform: translateY(60px);
+}
+
+/* Hide the drop connector on the very last item of the entire timeline */
+.timeline-row:last-child .timeline-item.row-end::after,
+.timeline-item.absolute-last::after {
+    display: none !important;
+}
+
+/* Mobile: Clean Vertical Stack for High Density */
+@media (max-width: 768px) {
+    .timeline-row {
+        flex-direction: column !important;
+        align-items: flex-start;
+        padding-left: 30px;
+        margin-bottom: 0px;
+    }
+
+    .timeline-row::before {
+        left: 4px;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        height: 100%;
+        right: auto;
+    }
+
+    .timeline-row::after {
+        display: none !important;
+    }
+
+    .timeline-item {
+        width: 100%;
+        text-align: left;
+        padding-bottom: 30px;
+        padding-top: 10px;
+    }
+
+    .timeline-dot {
+        left: -26px;
+        top: 16px;
+        transform: none;
+    }
+
+    .timeline-item.row-end::after {
+        display: none !important;
+    }
 }
 
 /* ── 9. Footer ────────────────────────────────────────────── */

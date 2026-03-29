@@ -299,7 +299,7 @@
   });
 
   const observerOptions = {
-    threshold: 0.5,
+    threshold: 0.2, // More sensitive for tall About section
     rootMargin: "-10% 0px -40% 0px"
   };
 
@@ -589,11 +589,63 @@
     window.addEventListener('resize', refreshGraph);
   }
 
+  // ── 10. Render Timeline (90-Degree Step Snake) ──────────
+  function renderTimeline() {
+    const container = document.getElementById('about-timeline');
+    if (!container || typeof TIMELINE_DATA === 'undefined') return;
+
+    container.innerHTML = '';
+    const itemsPerRow = 5;
+    const rows = [];
+
+    // Group items into rows
+    for (let i = 0; i < TIMELINE_DATA.length; i += itemsPerRow) {
+      rows.push(TIMELINE_DATA.slice(i, i + itemsPerRow));
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    rows.forEach((rowData, rowIndex) => {
+      const rowEl = document.createElement('div');
+      const isEven = rowIndex % 2 === 0;
+      const isLastRow = rowIndex === rows.length - 1;
+      
+      rowEl.className = `timeline-row ${isEven ? 'row-ltr' : 'row-rtl'}`;
+      if (isLastRow) {
+        rowEl.classList.add('last-row');
+        rowEl.style.setProperty('--last-item-idx', rowData.length - 1);
+      }
+
+      rowData.forEach((item, itemIndex) => {
+        const el = document.createElement('div');
+        el.className = 'timeline-item';
+
+        // Mark ends for vertical "step" connectors
+        if (itemIndex === rowData.length - 1) el.classList.add('row-end');
+        if (itemIndex === 0) el.classList.add('row-start');
+
+        el.innerHTML = `
+          <div class="timeline-dot" aria-hidden="true"></div>
+          <div class="timeline-content">
+            <p class="timeline-text">${item.activity}</p>
+            <time class="timeline-date">${item.month} ${item.year}</time>
+          </div>
+        `;
+        rowEl.appendChild(el);
+      });
+
+      fragment.appendChild(rowEl);
+    });
+
+    container.appendChild(fragment);
+  }
+
   // ── 9. Init All ──────────────────────────────────────────
   function init() {
     renderProjects();
     attachAccordionListeners();
     initSkillsGraph();
+    renderTimeline();
 
     setTimeout(() => {
       const list = document.getElementById('projects-list');
